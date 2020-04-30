@@ -11,4 +11,4 @@ pipelines:
         caches:
           - node
         script: # Modify the commands below to build your repository.
-          - npm run build
+          - ng build
