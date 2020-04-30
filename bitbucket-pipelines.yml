@@ -25,3 +25,4 @@ pipelines:
               SERVER: $SERVER
               REMOTE_PATH: '/home/qpfx5412/www/'
               LOCAL_PATH: 'build/*'
+              SSH_KEY: $SSH_KEY
