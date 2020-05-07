@@ -3,11 +3,11 @@ import * as L from 'leaflet';
 import 'leaflet-control-geocoder';
 
 export enum KEY_CODE {
-  UP_ARROW = 90,
-  DOWN_ARROW = 83,
-  RIGHT_ARROW = 68,
-  LEFT_ARROW = 81,
-  CENTER = 32
+  UP_ARROW = 38,
+  DOWN_ARROW = 40,
+  RIGHT_ARROW = 39,
+  LEFT_ARROW = 37,
+  CENTER = 13
 }
 
 @Component({
@@ -55,9 +55,9 @@ export class MapComponent implements AfterViewInit {
     }).addTo(this.map); 
   }
     
-  @HostListener('window:keydown', ['$event'])
+  @HostListener('window:keyup', ['$event'])
     keyEvent(event: KeyboardEvent) {
-      //console.log(event);
+      console.log(event.keyCode);
       this.handlingMap(event.keyCode);
   }
 
