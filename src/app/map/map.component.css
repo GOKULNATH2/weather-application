@@ -12,6 +12,8 @@
     height: 100%;
 }
 
+
+/*
 #search {
     position: absolute;
     top: 15px;
@@ -26,10 +28,16 @@
     border-radius: 0px;
     border: 1px solid orange;
     /*box-shadow: 0 0 10px black;*/
-}
+
+
+/*}
 
 #search input:focus {
     padding: 10px;
     border: 2px solid orange;
     /*box-shadow: 0 0 10px black;*/
+
+
+/*
 }
+*/
