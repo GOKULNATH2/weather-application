@@ -46,6 +46,7 @@ export class MapComponent implements AfterViewInit {
     //L.Control.geocoder().addTo(map);
     //L.Control.Geocoder.nominatim(options);
     //var marker = L.marker([51.5, -0.09]).addTo(this.map);
+    this.map.keyboard.disable();
 
     L.Control.geocoder({
       position: 'topleft',
