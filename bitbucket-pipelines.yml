@@ -27,4 +27,4 @@ pipelines:
                   - echo $MYKEY | base64 --decode > ~/.ssh/id_rsa_priv
                   - chmod 400 ~/.ssh/id_rsa_priv
                   - ssh -i ~/.ssh/id_rsa_priv -p 8022 $ACCOUNT@oblics.ddns.net 'rm -rf ~/www/*'
-                  - scp -rp -i ~/.ssh/id_rsa_priv -P 8022 dist/* $ACCOUNT@oblics.ddns.net:/home/$ACCOUNT/www/
+                  - scp -rp -i ~/.ssh/id_rsa_priv -P 8022 dist/map-application/* $ACCOUNT@oblics.ddns.net:/home/$ACCOUNT/www/
