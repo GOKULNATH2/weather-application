@@ -17,13 +17,13 @@ pipelines:
            - dist/**
     - step:
         name: Deploy artifacts using SCP to PROD
-        deployment: production
+        deployment: test
         script:
-          - pipe: atlassian/scp-deploy:0.3.3
-            variables:
-              USER: $USER
-              SERVER: $SERVER
-              REMOTE_PATH: '/home/qpfx5412/www/'
-              LOCAL_PATH: 'build/*'
-              DEBUG: 'true'
-              EXTRA_ARGS: '-P $SSH_PORT'
+                  - echo "Deploying to test environment"
+                  - ls dist/*
+                  - ssh-keyscan -p 8022 -t rsa oblics.ddns.net > ~/.ssh/known_hosts
+                  # Create MYKEY variable in Repository settings / Repository variables with secured True (also push base64encode version of the key in it) https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html#UseSSHkeysinBitbucketPipelines-multiple_keys
+                  - echo $MYKEY | base64 --decode > ~/.ssh/id_rsa_priv
+                  - chmod 400 ~/.ssh/id_rsa_priv
+                  - ssh -i ~/.ssh/id_rsa_priv -p 8022 $ACCOUNT@oblics.ddns.net 'rm -rf ~/www/*'
+                  - scp -rp -i ~/.ssh/id_rsa_priv -P 8022 dist/* $ACCOUNT@oblics.ddns.net:/home/$ACCOUNT/www/
