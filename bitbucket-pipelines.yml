@@ -8,6 +8,7 @@ image: node:10.15.3
 pipelines:
   default:
     - step:
+        name: build 
         caches:
           - node
         script: # Modify the commands below to build your repository.
@@ -20,7 +21,7 @@ pipelines:
         deployment: test
         script:
                   - echo "Deploying to test environment"
-                  - ls dist/*
+                  - ls
                   - ssh-keyscan -p 8022 -t rsa oblics.ddns.net > ~/.ssh/known_hosts
                   # Create MYKEY variable in Repository settings / Repository variables with secured True (also push base64encode version of the key in it) https://confluence.atlassian.com/bitbucket/use-ssh-keys-in-bitbucket-pipelines-847452940.html#UseSSHkeysinBitbucketPipelines-multiple_keys
                   - echo $MYKEY | base64 --decode > ~/.ssh/id_rsa_priv
