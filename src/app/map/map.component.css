@@ -12,6 +12,23 @@
     height: 100%;
 }
 
+.icon {
+    position: absolute;
+    z-index: 1000;
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+.move {
+    background-image: url("/assets/img/move.svg");
+}
+
+.zoom {
+    background-image: url("/assets/img/zoom.svg");
+}
+
 
 /*
 #search {
