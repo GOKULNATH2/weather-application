@@ -29,32 +29,43 @@
     background-image: url("/assets/img/zoom.svg");
 }
 
-
-/*
-#search {
+.message-container {
     position: absolute;
-    top: 15px;
-    left: 70px;
-    z-index: 2;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .3);
+    display: none;
 }
 
-#search input {
+.message-box {
+    position: absolute;
+    top: calc(50% - 100px);
+    left: calc(50% - 200px);
+    width: 600px;
+    height: 200px;
+    background-color: white;
+    border: 1px solid orange!important;
+    text-align: center;
+    margin-top: 50px;
     font-size: 25px;
-    width: 250px;
-    padding: 8px;
-    border-radius: 0px;
-    border: 1px solid orange;
-    /*box-shadow: 0 0 10px black;*/
-
-
-/*}
-
-#search input:focus {
-    padding: 10px;
-    border: 2px solid orange;
-    /*box-shadow: 0 0 10px black;*/
-
-
-/*
 }
-*/
+
+.message-container button {
+    background-color: orange;
+    color: white;
+    border: 0;
+    border-radius: 3px;
+    padding: 20px 30px;
+    margin: 20px;
+}
+
+.message-container.show-message {
+    display: block;
+}
+
+.message-container .selected {
+    border: 5px solid black;
+}

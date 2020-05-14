@@ -2,3 +2,12 @@
     <i class="icon {{handleIcon}}"></i>
     <div id="map"></div>
 </div>
+<div class="message-container" class="{{escapeMessage}}">
+    <div class="message-box">
+        <p>
+            Souhaitez-vous quitter l'application?
+        </p>
+        <button class="{{(!choiseMessage?'selected':'')}}">Non</button>
+        <button class="{{(choiseMessage?'selected':'')}}">Oui</button>
+    </div>
+</div>

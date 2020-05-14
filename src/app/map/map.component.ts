@@ -1,14 +1,11 @@
-import { AfterViewInit, Component, HostListener } from '@angular/core';
-import * as L from 'leaflet';
-import 'leaflet-control-geocoder';
-
-export enum KEY_CODE {
-  UP_ARROW = 38,
-  DOWN_ARROW = 40,
-  RIGHT_ARROW = 39,
-  LEFT_ARROW = 37,
-  CENTER = 13
-}
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  ElementRef,
+} from "@angular/core";
+import * as L from "leaflet";
+import "leaflet-control-geocoder";
 
 export enum CONST {
   ZOOM_MAX = 18,
@@ -17,37 +14,44 @@ export enum CONST {
 }
 
 @Component({
-  selector: 'app-map',
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  selector: "app-map",
+  templateUrl: "./map.component.html",
+  styleUrls: ["./map.component.css"],
 })
 export class MapComponent implements AfterViewInit {
   private map;
+  private geocoder;
+  private searchInput;
+  private searchInputFocused = false;
+  private validEscape = false;
   private coodLat;
   private coodLon;
   private moveMode = true;
   private handleZoom = 5;
   private moveSize = 5;
   public handleIcon = "move";
+  public escapeMessage = "";
+  public choiseMessage = true;
 
-  constructor() {
+  constructor(private elem: ElementRef) {
     this.coodLat = 45;
     this.coodLon = 5;
   }
 
   ngAfterViewInit(): void {
+    // init map
     this.initMap();
+    this.initInput();
   }
 
   private initMap(): void {
-
-    this.map = L.map('map', {
+    this.map = L.map("map", {
       zoomControl: false,
       center: [this.coodLat, this.coodLon],
       zoom: this.handleZoom,
     });
 
-    L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    L.tileLayer("https://{s}.tile.osm.org/{z}/{x}/{y}.png", {
       //attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.map);
     // disable keyboard
@@ -57,25 +61,70 @@ export class MapComponent implements AfterViewInit {
     //L.Control.Geocoder.nominatim(options);
     //var marker = L.marker([51.5, -0.09]).addTo(this.map);
 
-    L.Control.geocoder({
-      position: 'topleft',
+    this.geocoder = L.Control.geocoder({
+      position: "topleft",
       collapsed: false,
-      placeholder: 'Search...',
+      placeholder: "Recherche...",
       defaultMarkGeocode: true,
     }).addTo(this.map);
+
+    //this.geocoder.setQuery("londre")._geocode()
   }
 
-  @HostListener('window:keyup', ['$event'])
+  @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
-    console.log(this.map.getCenter());
-    console.log(this.map.getZoom());
-    this.handlingMap(event.keyCode);
+    //console.log(this.map.getCenter());
+    //console.log(this.map.getZoom());
+    //console.log(event)
+
+    if (this.escapeMessage == "") {
+      if (!this.searchInputFocused) {
+        this.handlingMap(event.key);
+      } else {
+        this.handlingKeyboard(event.key);
+      }
+      this.escapeApp(event.key);
+    } else {
+      this.handlingEscapeMessage(event.key);
+    }
   }
 
-  private handlingMap(keyCode): void {
+  private handlingKeyboard(key): void {
+    switch (key) {
+      case "ArrowRight":
+        break;
+      case "ArrowLeft":
+        break;
+      case "Enter":
+        break;
+      case "Escape":
+        this.setFocusOut();
+        break;
+    }
+  }
 
-    switch (keyCode) {
-      case KEY_CODE.UP_ARROW:
+  private handlingEscapeMessage(key): void {
+    switch (key) {
+      case "ArrowRight":
+      case "ArrowLeft":
+        this.choiseMessage = !this.choiseMessage;
+        break;
+      case "Enter":
+        if (this.choiseMessage) {
+          alert("quitt");
+        } else {
+          this.clearEscape();
+        }
+        break;
+      case "Escape":
+        this.clearEscape();
+        break;
+    }
+  }
+
+  private handlingMap(key): void {
+    switch (key) {
+      case "ArrowUp":
         if (this.moveMode) {
           if (this.map.getCenter().lat < CONST.LAT_MAX) {
             this.moveMap(1, 0);
@@ -87,7 +136,7 @@ export class MapComponent implements AfterViewInit {
           }
         }
         break;
-      case KEY_CODE.DOWN_ARROW:
+      case "ArrowDown":
         if (this.moveMode) {
           if (this.map.getCenter().lat > -CONST.LAT_MAX) {
             this.moveMap(-1, 0);
@@ -95,27 +144,46 @@ export class MapComponent implements AfterViewInit {
         } else {
           if (this.handleZoom > CONST.ZOOM_MIN) {
             this.zoomMap(-1);
-            this.moveSize *= 2
+            this.moveSize *= 2;
           }
-
         }
         break;
-      case KEY_CODE.RIGHT_ARROW:
+      case "ArrowRight":
         if (this.moveMode) {
           this.moveMap(0, 1);
         } else {
         }
         break;
-      case KEY_CODE.LEFT_ARROW:
+      case "ArrowLeft":
         if (this.moveMode) {
           this.moveMap(0, -1);
         } else {
         }
         break;
-      case KEY_CODE.CENTER:
+      case "Enter":
         this.changeMode();
         break;
+      case "Escape":
+        this.setFocus();
+        break;
     }
+  }
+
+  private escapeApp(key): void {
+    if (key == "Escape") {
+      if (this.validEscape) {
+        this.escapeMessage = "show-message";
+      } else {
+        this.validEscape = true;
+      }
+    } else {
+      this.validEscape = false;
+    }
+  }
+
+  private clearEscape() {
+    this.escapeMessage = "";
+    this.validEscape = false;
   }
 
   private changeMode(): void {
@@ -126,6 +194,19 @@ export class MapComponent implements AfterViewInit {
     } else {
       this.handleIcon = "zoom";
       console.log("zoom");
+    }
+  }
+
+  private setPosition(): void {
+    // set new coordinates and handle zoom 
+    let coord = this.map.getCenter();
+    this.coodLat = coord.lat;
+    this.coodLon = coord.lng;
+    this.handleZoom = this.map.getZoom();
+    // calcul new move size
+    this.moveSize=80;
+    for(let i=0; i<this.handleZoom;i++){
+      this.moveSize/=2;
     }
   }
 
@@ -142,10 +223,26 @@ export class MapComponent implements AfterViewInit {
     this.map.setZoom(this.handleZoom);
   }
 
-  showSearch() {
-    /* this.show = !this.show;  
-     setTimeout(()=>{ // this will make the execution after the above boolean has changed
-       this.searchElement.nativeElement.focus();
-     },0); */
+  initInput() {
+    // select search input box
+    this.searchInput = this.elem.nativeElement.querySelector(
+      ".leaflet-control-geocoder-form input"
+    );
+    //his.searchInput.addEventListener("focusout", this.focusOut.bind(this));
+  }
+
+  //public focusOut = function (event) {
+  //  this.searchInputFocused = false;
+  //};
+
+  setFocus() {
+    this.searchInput.focus();
+    this.searchInputFocused = true;
+  }
+  setFocusOut() {
+    this.searchInput.blur();
+    this.searchInputFocused = false;
+    
+    this.setPosition();
   }
 }
