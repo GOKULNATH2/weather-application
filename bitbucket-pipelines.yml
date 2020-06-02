@@ -13,6 +13,7 @@ pipelines:
           - node
         script: # Modify the commands below to build your repository.
           - npm install
+          - npm run build map-library
           - npm run build
         artifacts:
            - dist/**
