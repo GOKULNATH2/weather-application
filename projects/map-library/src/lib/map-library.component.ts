@@ -14,18 +14,19 @@ export enum CONST {
 }
 
 @Component({
-  selector: "app-map",
-  templateUrl: "./map.component.html",
-  styleUrls: ["./map.component.css"],
+  selector: "lib-map-library",
+  templateUrl: "./map-library.component.html",
+  styleUrls: ["./map-library.component.css",],
 })
-export class MapComponent implements AfterViewInit {
+
+export class MapLibraryComponent implements AfterViewInit {
   private map;
   private geocoder;
   private searchInput;
   private searchInputFocused = false;
   private validEscape = false;
-  private coodLat;
-  private coodLon;
+  private coodLat = 45;
+  private coodLon = 5;
   private moveMode = true;
   private handleZoom = 5;
   private moveSize = 5;
@@ -34,8 +35,6 @@ export class MapComponent implements AfterViewInit {
   public choiseMessage = true;
 
   constructor(private elem: ElementRef) {
-    this.coodLat = 45;
-    this.coodLon = 5;
   }
 
   ngAfterViewInit(): void {
@@ -57,10 +56,6 @@ export class MapComponent implements AfterViewInit {
     // disable keyboard
     this.map.keyboard.disable();
 
-    //L.Control.geocoder().addTo(map);
-    //L.Control.Geocoder.nominatim(options);
-    //var marker = L.marker([51.5, -0.09]).addTo(this.map);
-
     this.geocoder = L.Control.geocoder({
       position: "topleft",
       collapsed: false,
@@ -69,6 +64,11 @@ export class MapComponent implements AfterViewInit {
     }).addTo(this.map);
 
     //this.geocoder.setQuery("londre")._geocode()
+    //this.setMarker(45, 5.1)
+  }
+
+  public setMarker(lat, lon): void {
+    L.marker([lat, lon]).addTo(this.map);
   }
 
   @HostListener("window:keyup", ["$event"])
@@ -228,12 +228,7 @@ export class MapComponent implements AfterViewInit {
     this.searchInput = this.elem.nativeElement.querySelector(
       ".leaflet-control-geocoder-form input"
     );
-    //his.searchInput.addEventListener("focusout", this.focusOut.bind(this));
   }
-
-  //public focusOut = function (event) {
-  //  this.searchInputFocused = false;
-  //};
 
   setFocus() {
     this.searchInput.focus();
