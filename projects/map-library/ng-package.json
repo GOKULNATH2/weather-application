@@ -3,5 +3,10 @@
   "dest": "../../dist/map-library",
   "lib": {
     "entryFile": "src/public-api.ts"
-  }
+  },
+  "assets": [
+    "src/favicon.ico",
+    "src/assets",
+    "src/styles.css"
+  ]
 }

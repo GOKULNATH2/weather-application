@@ -14,7 +14,7 @@ export enum CONST {
 }
 
 @Component({
-  selector: "lib-map-library",
+  selector: "map-library",
   templateUrl: "./map-library.component.html",
   styleUrls: ["./map-library.component.css",],
 })

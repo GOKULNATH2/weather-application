@@ -24,8 +24,7 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "projects/map-library/src/styles.css"
+              "src/styles.css"
             ],
             "scripts": []
           },

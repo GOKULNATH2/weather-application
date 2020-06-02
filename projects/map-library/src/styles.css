@@ -17,3 +17,11 @@
 .leaflet-control-geocoder-alternatives {
     width: 100%;
 }
+
+.move {
+    background-image: url("./assets/img/move.svg");
+}
+
+.zoom {
+    background-image: url("./assets/img/zoom.svg");
+}
