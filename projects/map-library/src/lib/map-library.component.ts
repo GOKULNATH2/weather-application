@@ -15,20 +15,27 @@ export enum CONST {
 
 @Component({
   selector: "map-library",
+  inputs: ['coodLat', 'coodLon', 'handleZoom', 'search', 'marker'],
   templateUrl: "./map-library.component.html",
   styleUrls: ["./map-library.component.css",],
 })
 
 export class MapLibraryComponent implements AfterViewInit {
+
+  // input values
+  public coodLat: number = 45;
+  public coodLon: number = 5;
+  public handleZoom: number = 5;
+  public search: String;
+  public marker: any;
+
+
   private map;
   private geocoder;
   private searchInput;
   private searchInputFocused = false;
   private validEscape = false;
-  private coodLat = 45;
-  private coodLon = 5;
   private moveMode = true;
-  private handleZoom = 5;
   private moveSize = 5;
   public handleIcon = "move";
   public escapeMessage = "";
@@ -41,6 +48,10 @@ export class MapLibraryComponent implements AfterViewInit {
     // init map
     this.initMap();
     this.initInput();
+
+    // display input request
+    this.setSearch(this.search);
+    this.setMarker(this.marker);
   }
 
   private initMap(): void {
@@ -62,20 +73,32 @@ export class MapLibraryComponent implements AfterViewInit {
       placeholder: "Recherche...",
       defaultMarkGeocode: true,
     }).addTo(this.map);
-
-    //this.geocoder.setQuery("londre")._geocode()
-    //this.setMarker(45, 5.1)
   }
 
-  public setMarker(lat, lon): void {
-    L.marker([lat, lon]).addTo(this.map);
+  public setMarker(marker): void {
+    if (marker) {
+      marker.forEach(position => {
+        L.marker([position.lat, position.lon]).addTo(this.map);
+      });
+    }
+  }
+
+  private setSearch(search): void {
+    if (this.search) {
+      // load searching
+      this.geocoder.setQuery(search)._geocode()
+      // search the first element
+      setTimeout(() => {
+        if(this.geocoder._results && this.geocoder._results.length){
+          this.geocoder._geocodeResultSelected(this.geocoder._results[0])
+          this.geocoder._clearResults();
+        }
+      }, 2000);
+    }
   }
 
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
-    //console.log(this.map.getCenter());
-    //console.log(this.map.getZoom());
-    //console.log(event)
 
     if (this.escapeMessage == "") {
       if (!this.searchInputFocused) {
@@ -204,9 +227,9 @@ export class MapLibraryComponent implements AfterViewInit {
     this.coodLon = coord.lng;
     this.handleZoom = this.map.getZoom();
     // calcul new move size
-    this.moveSize=80;
-    for(let i=0; i<this.handleZoom;i++){
-      this.moveSize/=2;
+    this.moveSize = 80;
+    for (let i = 0; i < this.handleZoom; i++) {
+      this.moveSize /= 2;
     }
   }
 
@@ -237,7 +260,7 @@ export class MapLibraryComponent implements AfterViewInit {
   setFocusOut() {
     this.searchInput.blur();
     this.searchInputFocused = false;
-    
+
     this.setPosition();
   }
 }

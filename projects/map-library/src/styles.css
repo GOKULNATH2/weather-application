@@ -18,6 +18,11 @@
     width: 100%;
 }
 
+.leaflet-marker-shadow{
+    background: transparent;
+    display: none!important;
+}
+
 .move {
     background-image: url("./assets/img/move.svg");
 }
