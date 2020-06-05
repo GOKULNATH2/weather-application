@@ -1,24 +1,55 @@
-# MapLibrary
+# MapApplication
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.9.
+This is an application which allow to have map on web browser.
 
-## Code scaffolding
+after running npm run build map-library, the library is available in dist folder.
 
-Run `ng generate component component-name --project map-library` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project map-library`.
-> Note: Don't forget to add `--project map-library` or else it will be added to the default project in your `angular.json` file. 
+## implement
 
-## Build
+To implement the library, add elemants in each files:
 
-Run `ng build map-library` to build the project. The build artifacts will be stored in the `dist/` directory.
+* app.component.html
 
-## Publishing
+``` html
+<map-library 
+    [mapLat]="mapLat" 
+    [mapLon]="mapLon" 
+    [mapZoom]="mapZoom" 
+    [search]="search" 
+    [marker]="marker"
+    (onchange)="onMapChange($event)">
+</map-library>
+```
 
-After building your library with `ng build map-library`, go to the dist folder `cd dist/map-library` and run `npm publish`.
+* app.component.ts
 
-## Running unit tests
+``` ts
+// component values
+public mapLat: number = 45;
+public mapLon: number = 5;
+public mapZoom: number = 5;
+public search: String = '';
+public marker:any = [{ text: "myText", img: "url.png", lat: 48, lon: -3 }];
 
-Run `ng test map-library` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Further help
+onMapChange(event) {
+  console.log(event);
+}
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+* app.module.ts
+
+``` ts
+import { MapLibraryModule } from 'map-library';
+
+imports: [
+    ... ,
+    MapLibraryModule
+  ]
+```
+
+* global css file
+
+``` css
+@import "~../dist/map-library/src/styles.css";
+```
