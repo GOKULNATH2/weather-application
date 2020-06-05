@@ -2,7 +2,7 @@
 
 This is an application which allow to have map on web browser.
 
-after running npm run build map-library, the library is available in dist folder.
+after running npm run build map-library, the library is available in dist folder. you can copy the folder into your own project. An implement example is available in src app.
 
 ## implement
 

@@ -40,19 +40,18 @@ export class MapLibraryComponent implements AfterViewInit {
   private searchInputFocused = false;
   private validEscape = false;
   private moveMode = true;
-  private moveSize;
+  private moveShift;
   public handleIcon = "move";
   public escapeMessage = "";
   public choiseMessage = true;
 
-  constructor(private elem: ElementRef) {
-  }
+  constructor(private elem: ElementRef) { }
 
   ngAfterViewInit(): void {
     // init map
     this.initMap();
     this.initInput();
-    this.initMoveSize();
+    this.setMoveShift();
 
     // init display input request
     this.setSearch(this.search);
@@ -60,19 +59,18 @@ export class MapLibraryComponent implements AfterViewInit {
   }
 
   private initMap(): void {
+    // init map
     this.map = L.map("map", {
       attributionControl: false,
       zoomControl: false,
       center: [this.mapLat, this.mapLon],
       zoom: this.mapZoom,
     });
-
-    L.tileLayer("https://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-      //attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(this.map);
+    // display map
+    L.tileLayer("https://{s}.tile.osm.org/{z}/{x}/{y}.png").addTo(this.map);
     // disable keyboard
     this.map.keyboard.disable();
-
+    // add search box
     this.geocoder = L.Control.geocoder({
       position: "topleft",
       collapsed: false,
@@ -95,13 +93,14 @@ export class MapLibraryComponent implements AfterViewInit {
     }
   }
 
-  private mapMarkers=[];
+  // display markers
+  private mapMarkers = [];
   private setMarker(marker): void {
-    
+
     this.cleanMarkers();
-    let i=0;
+    let i = 0;
     marker.forEach(element => {
-      if("lat" in element && "lon" in element){
+      if ("lat" in element && "lon" in element) {
         if (!element.text) {
           this.mapMarkers[i] = L.marker([element.lat, element.lon])
         } else {
@@ -113,29 +112,56 @@ export class MapLibraryComponent implements AfterViewInit {
     });
   }
 
-  private cleanMarkers(){
-    for(let i = 0; i < this.mapMarkers.length; i++){
+  // remove all markers to display news
+  private cleanMarkers() {
+    for (let i = 0; i < this.mapMarkers.length; i++) {
       this.map.removeLayer(this.mapMarkers[i]);
     }
   }
 
+  // generate Marker
   private generateIconMarker(element) {
 
-    let html = `<div style="background: white; border-radius:20px; padding: 5px 5px 0 5px;">
-              <div style="text-align:center;">${element.text}</div>
-              `+(element.img?`<img style="width:100%" src="${element.img}"/>`:``)+`
+    // set html form
+    let html = `<div style="background: white; border-radius:20px; position:absolute; padding: 5px 5px 0 5px;">
+              <div style="text-align:center; font-size:1.2em;">${element.text}</div>
+              `+ (element.content ? `<span>${element.content}</span>` : ``) +
+              (element.img ? `<img style="width:100%" src="${element.img}"/>` : ``) + `
             </div>`
 
+    // return leaflet marker
     return new L.Marker([element.lat, element.lon], {
       icon: new L.DivIcon({
         className: '',
         iconSize: [70, 70], // size of the icon
-        iconAnchor: [35, element.img?40:10],
+        iconAnchor: [35, element.img ? 40 : 10],
         html,
       })
     })
-
   }
+
+  /*************** components attributes events *************/
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.map) {
+      switch (Object.keys(changes)[0]) {
+        case "mapZoom":
+        case "mapLat":
+        case "mapLon":
+          this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
+          this.setMoveShift();
+          break;
+        case "marker":
+          this.setMarker(this.marker);
+          break;
+        case "search":
+          this.setSearch(this.search);
+          break;
+      }
+    }
+  }
+
+  /*************** keyboard event detect and functions *************/
 
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
@@ -151,26 +177,6 @@ export class MapLibraryComponent implements AfterViewInit {
       this.handlingEscapeMessage(event.key);
     }
     this.onchange.emit({ key: event.key, zoom: this.mapZoom, lat: this.mapLat, lon: this.mapLon })
-  }
-
-  // components events
-  ngOnChanges(changes: SimpleChanges) {
-    if (this.map) {
-      switch (Object.keys(changes)[0]) {
-        case "mapZoom":
-        case "mapLat":
-        case "mapLon":
-          this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
-          this.initMoveSize();
-          break;
-        case "marker":
-          this.setMarker(this.marker);
-          break;
-        case "search":
-          this.setSearch(this.search);
-          break;
-      }
-    }
   }
 
   private handlingKeyboard(key): void {
@@ -216,7 +222,7 @@ export class MapLibraryComponent implements AfterViewInit {
         } else {
           if (this.mapZoom < CONST.ZOOM_MAX) {
             this.zoomMap(1);
-            this.moveSize /= 2;
+            this.moveShift /= 2;
           }
         }
         break;
@@ -228,7 +234,7 @@ export class MapLibraryComponent implements AfterViewInit {
         } else {
           if (this.mapZoom > CONST.ZOOM_MIN) {
             this.zoomMap(-1);
-            this.moveSize *= 2;
+            this.moveShift *= 2;
           }
         }
         break;
@@ -253,6 +259,21 @@ export class MapLibraryComponent implements AfterViewInit {
     }
   }
 
+    // display move or zoom icon when press
+    private changeMode(): void {
+      this.moveMode = !this.moveMode;
+      if (this.moveMode) {
+        this.handleIcon = "move";
+        console.log("move");
+      } else {
+        this.handleIcon = "zoom";
+        console.log("zoom");
+      }
+    }
+
+  /*************** escape app functions *************/
+
+  // show escape message
   private escapeApp(key): void {
     if (key == "Escape") {
       if (this.validEscape) {
@@ -265,62 +286,54 @@ export class MapLibraryComponent implements AfterViewInit {
     }
   }
 
+  // hide escape message
   private clearEscape() {
     this.escapeMessage = "";
     this.validEscape = false;
   }
-
-  private changeMode(): void {
-    this.moveMode = !this.moveMode;
-    if (this.moveMode) {
-      this.handleIcon = "move";
-      console.log("move");
-    } else {
-      this.handleIcon = "zoom";
-      console.log("zoom");
-    }
-  }
-
+  
+  /*************** set position, move and zoom functions *************/
+  
+  // set new coordinates and handle zoom 
   private setPosition(): void {
-    // set new coordinates and handle zoom 
     let coord = this.map.getCenter();
     this.mapLat = coord.lat;
     this.mapLon = coord.lng;
     this.mapZoom = this.map.getZoom();
     // calcul new move size
-    this.moveSize = 80;
-    for (let i = 0; i < this.mapZoom; i++) {
-      this.moveSize /= 2;
-    }
+    this.setMoveShift();
   }
 
+  // calcul new coordinates
   private moveMap(lat, lon): void {
-    // calcul new coordinates
-    this.mapLat += lat * this.moveSize;
-    this.mapLon += lon * this.moveSize;
+    this.mapLat += lat * this.moveShift;
+    this.mapLon += lon * this.moveShift;
     this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
   }
 
+  // update zoom
   private zoomMap(zoom): void {
-    // update zoom
     this.mapZoom += zoom;
     this.map.setZoom(this.mapZoom);
   }
 
+  // alter move padding
+  setMoveShift() {
+    this.moveShift = 80;
+    for (let i = 1; i < this.mapZoom; i++) {
+      this.moveShift /= 2;
+    }
+  }
+
+  /*************** search input functions *************/
+  
+  // set input focus or blur
   initInput() {
     // select search input box
     this.searchInput = this.elem.nativeElement.querySelector(
       ".leaflet-control-geocoder-form input"
     );
   }
-
-  initMoveSize() {
-    this.moveSize = 80;
-    for (let i = 1; i < this.mapZoom; i++) {
-      this.moveSize /= 2;
-    }
-  }
-
   setFocus() {
     this.searchInput.focus();
     this.searchInputFocused = true;
