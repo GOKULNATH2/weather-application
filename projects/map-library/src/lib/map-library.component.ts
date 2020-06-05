@@ -3,6 +3,9 @@ import {
   Component,
   HostListener,
   ElementRef,
+  Output,
+  EventEmitter,
+  SimpleChanges
 } from "@angular/core";
 import * as L from "leaflet";
 import "leaflet-control-geocoder";
@@ -15,7 +18,7 @@ export enum CONST {
 
 @Component({
   selector: "map-library",
-  inputs: ['coodLat', 'coodLon', 'handleZoom', 'search', 'marker'],
+  inputs: ['mapLat', 'mapLon', 'mapZoom', 'search', 'marker'],
   templateUrl: "./map-library.component.html",
   styleUrls: ["./map-library.component.css",],
 })
@@ -23,12 +26,13 @@ export enum CONST {
 export class MapLibraryComponent implements AfterViewInit {
 
   // input values
-  public coodLat: number = 45;
-  public coodLon: number = 5;
-  public handleZoom: number = 5;
+  public mapLat: number = 45;
+  public mapLon: number = 5;
+  public mapZoom: number = 5;
   public search: String;
   public marker: any;
 
+  @Output() onchange = new EventEmitter<any>();
 
   private map;
   private geocoder;
@@ -36,7 +40,7 @@ export class MapLibraryComponent implements AfterViewInit {
   private searchInputFocused = false;
   private validEscape = false;
   private moveMode = true;
-  private moveSize = 5;
+  private moveSize;
   public handleIcon = "move";
   public escapeMessage = "";
   public choiseMessage = true;
@@ -48,17 +52,19 @@ export class MapLibraryComponent implements AfterViewInit {
     // init map
     this.initMap();
     this.initInput();
+    this.initMoveSize();
 
-    // display input request
+    // init display input request
     this.setSearch(this.search);
     this.setMarker(this.marker);
   }
 
   private initMap(): void {
     this.map = L.map("map", {
+      attributionControl: false,
       zoomControl: false,
-      center: [this.coodLat, this.coodLon],
-      zoom: this.handleZoom,
+      center: [this.mapLat, this.mapLon],
+      zoom: this.mapZoom,
     });
 
     L.tileLayer("https://{s}.tile.osm.org/{z}/{x}/{y}.png", {
@@ -75,26 +81,60 @@ export class MapLibraryComponent implements AfterViewInit {
     }).addTo(this.map);
   }
 
-  public setMarker(marker): void {
-    if (marker) {
-      marker.forEach(position => {
-        L.marker([position.lat, position.lon]).addTo(this.map);
-      });
-    }
-  }
-
   private setSearch(search): void {
     if (this.search) {
       // load searching
       this.geocoder.setQuery(search)._geocode()
       // search the first element
       setTimeout(() => {
-        if(this.geocoder._results && this.geocoder._results.length){
+        if (this.geocoder._results && this.geocoder._results.length) {
           this.geocoder._geocodeResultSelected(this.geocoder._results[0])
           this.geocoder._clearResults();
         }
       }, 2000);
     }
+  }
+
+  private mapMarkers=[];
+  private setMarker(marker): void {
+    
+    this.cleanMarkers();
+    let i=0;
+    marker.forEach(element => {
+      if("lat" in element && "lon" in element){
+        if (!element.text) {
+          this.mapMarkers[i] = L.marker([element.lat, element.lon])
+        } else {
+          this.mapMarkers[i] = this.generateIconMarker(element)
+        }
+        this.mapMarkers[i].addTo(this.map);
+        i++;
+      }
+    });
+  }
+
+  private cleanMarkers(){
+    for(let i = 0; i < this.mapMarkers.length; i++){
+      this.map.removeLayer(this.mapMarkers[i]);
+    }
+  }
+
+  private generateIconMarker(element) {
+
+    let html = `<div style="background: white; border-radius:20px; padding: 5px 5px 0 5px;">
+              <div style="text-align:center;">${element.text}</div>
+              `+(element.img?`<img style="width:100%" src="${element.img}"/>`:``)+`
+            </div>`
+
+    return new L.Marker([element.lat, element.lon], {
+      icon: new L.DivIcon({
+        className: '',
+        iconSize: [70, 70], // size of the icon
+        iconAnchor: [35, element.img?40:10],
+        html,
+      })
+    })
+
   }
 
   @HostListener("window:keyup", ["$event"])
@@ -109,6 +149,27 @@ export class MapLibraryComponent implements AfterViewInit {
       this.escapeApp(event.key);
     } else {
       this.handlingEscapeMessage(event.key);
+    }
+    this.onchange.emit({ key: event.key, zoom: this.mapZoom, lat: this.mapLat, lon: this.mapLon })
+  }
+
+  // components events
+  ngOnChanges(changes: SimpleChanges) {
+    if (this.map) {
+      switch (Object.keys(changes)[0]) {
+        case "mapZoom":
+        case "mapLat":
+        case "mapLon":
+          this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
+          this.initMoveSize();
+          break;
+        case "marker":
+          this.setMarker(this.marker);
+          break;
+        case "search":
+          this.setSearch(this.search);
+          break;
+      }
     }
   }
 
@@ -153,7 +214,7 @@ export class MapLibraryComponent implements AfterViewInit {
             this.moveMap(1, 0);
           }
         } else {
-          if (this.handleZoom < CONST.ZOOM_MAX) {
+          if (this.mapZoom < CONST.ZOOM_MAX) {
             this.zoomMap(1);
             this.moveSize /= 2;
           }
@@ -165,7 +226,7 @@ export class MapLibraryComponent implements AfterViewInit {
             this.moveMap(-1, 0);
           }
         } else {
-          if (this.handleZoom > CONST.ZOOM_MIN) {
+          if (this.mapZoom > CONST.ZOOM_MIN) {
             this.zoomMap(-1);
             this.moveSize *= 2;
           }
@@ -223,27 +284,27 @@ export class MapLibraryComponent implements AfterViewInit {
   private setPosition(): void {
     // set new coordinates and handle zoom 
     let coord = this.map.getCenter();
-    this.coodLat = coord.lat;
-    this.coodLon = coord.lng;
-    this.handleZoom = this.map.getZoom();
+    this.mapLat = coord.lat;
+    this.mapLon = coord.lng;
+    this.mapZoom = this.map.getZoom();
     // calcul new move size
     this.moveSize = 80;
-    for (let i = 0; i < this.handleZoom; i++) {
+    for (let i = 0; i < this.mapZoom; i++) {
       this.moveSize /= 2;
     }
   }
 
   private moveMap(lat, lon): void {
     // calcul new coordinates
-    this.coodLat += lat * this.moveSize;
-    this.coodLon += lon * this.moveSize;
-    this.map.setView([this.coodLat, this.coodLon], this.handleZoom);
+    this.mapLat += lat * this.moveSize;
+    this.mapLon += lon * this.moveSize;
+    this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
   }
 
   private zoomMap(zoom): void {
     // update zoom
-    this.handleZoom += zoom;
-    this.map.setZoom(this.handleZoom);
+    this.mapZoom += zoom;
+    this.map.setZoom(this.mapZoom);
   }
 
   initInput() {
@@ -251,6 +312,13 @@ export class MapLibraryComponent implements AfterViewInit {
     this.searchInput = this.elem.nativeElement.querySelector(
       ".leaflet-control-geocoder-form input"
     );
+  }
+
+  initMoveSize() {
+    this.moveSize = 80;
+    for (let i = 1; i < this.mapZoom; i++) {
+      this.moveSize /= 2;
+    }
   }
 
   setFocus() {

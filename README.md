@@ -1,27 +1,55 @@
 # MapApplication
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.0.7.
+This is an application which allow to have map on web browser.
 
-## Development server
+after running npm run build map-library, the library is available in dist folder.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## implement
 
-## Code scaffolding
+To implement the library, add elemants in each files:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+* app.component.html
 
-## Build
+``` html
+<map-library 
+    [mapLat]="mapLat" 
+    [mapLon]="mapLon" 
+    [mapZoom]="mapZoom" 
+    [search]="search" 
+    [marker]="marker"
+    (onchange)="onMapChange($event)">
+</map-library>
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+* app.component.ts
 
-## Running unit tests
+``` ts
+// component values
+public mapLat: number = 45;
+public mapLon: number = 5;
+public mapZoom: number = 5;
+public search: String = '';
+public marker:any = [{ text: "myText", img: "url.png", lat: 48, lon: -3 }];
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+onMapChange(event) {
+  console.log(event);
+}
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+* app.module.ts
 
-## Further help
+``` ts
+import { MapLibraryModule } from 'map-library';
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+imports: [
+    ... ,
+    MapLibraryModule
+  ]
+```
+
+* global css file
+
+``` css
+@import "~../dist/map-library/src/styles.css";
+```

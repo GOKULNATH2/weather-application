@@ -1,7 +1,8 @@
 <map-library 
-    [coodLat]="coodLat" 
-    [coodLon]="coodLon" 
-    [handleZoom]="handleZoom" 
+    [mapLat]="mapLat" 
+    [mapLon]="mapLon" 
+    [mapZoom]="mapZoom" 
     [search]="search" 
-    [marker]="marker">
+    [marker]="marker"
+    (onchange)="onMapChange($event)">
 </map-library>
