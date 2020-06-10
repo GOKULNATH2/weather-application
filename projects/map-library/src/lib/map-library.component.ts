@@ -18,7 +18,7 @@ export enum CONST {
 
 @Component({
   selector: "map-library",
-  inputs: ['mapLat', 'mapLon', 'mapZoom', 'search', 'marker'],
+  inputs: ['mapLat', 'mapLng', 'mapZoom', 'search', 'marker'],
   templateUrl: "./map-library.component.html",
   styleUrls: ["./map-library.component.css",],
 })
@@ -27,7 +27,7 @@ export class MapLibraryComponent implements AfterViewInit {
 
   // input values
   public mapLat: number = 45;
-  public mapLon: number = 5;
+  public mapLng: number = 5;
   public mapZoom: number = 5;
   public search: String;
   public marker: any;
@@ -63,7 +63,7 @@ export class MapLibraryComponent implements AfterViewInit {
     this.map = L.map("map", {
       attributionControl: false,
       zoomControl: false,
-      center: [this.mapLat, this.mapLon],
+      center: [this.mapLat, this.mapLng],
       zoom: this.mapZoom,
     });
     // display map
@@ -100,9 +100,9 @@ export class MapLibraryComponent implements AfterViewInit {
     this.cleanMarkers();
     let i = 0;
     marker.forEach(element => {
-      if ("lat" in element && "lon" in element) {
+      if ("lat" in element && "lng" in element) {
         if (!element.text) {
-          this.mapMarkers[i] = L.marker([element.lat, element.lon])
+          this.mapMarkers[i] = L.marker([element.lat, element.lng])
         } else {
           this.mapMarkers[i] = this.generateIconMarker(element)
         }
@@ -126,11 +126,11 @@ export class MapLibraryComponent implements AfterViewInit {
     let html = `<div style="background: white; border-radius:20px; position:absolute; padding: 5px 5px 0 5px;">
               <div style="text-align:center; font-size:1.2em;">${element.text}</div>
               `+ (element.content ? `<span>${element.content}</span>` : ``) +
-              (element.img ? `<img style="width:100%" src="${element.img}"/>` : ``) + `
+      (element.img ? `<img style="width:100%" src="${element.img}"/>` : ``) + `
             </div>`
 
     // return leaflet marker
-    return new L.Marker([element.lat, element.lon], {
+    return new L.Marker([element.lat, element.lng], {
       icon: new L.DivIcon({
         className: '',
         iconSize: [70, 70], // size of the icon
@@ -147,8 +147,8 @@ export class MapLibraryComponent implements AfterViewInit {
       switch (Object.keys(changes)[0]) {
         case "mapZoom":
         case "mapLat":
-        case "mapLon":
-          this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
+        case "mapLng":
+          this.map.setView([this.mapLat, this.mapLng], this.mapZoom);
           this.setMoveShift();
           break;
         case "marker":
@@ -160,11 +160,15 @@ export class MapLibraryComponent implements AfterViewInit {
       }
     }
   }
-
+  rectangle;
   /*************** keyboard event detect and functions *************/
+
+
 
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
+
+    let fromZoom = this.mapZoom;
 
     if (this.escapeMessage == "") {
       if (!this.searchInputFocused) {
@@ -176,7 +180,8 @@ export class MapLibraryComponent implements AfterViewInit {
     } else {
       this.handlingEscapeMessage(event.key);
     }
-    this.onchange.emit({ key: event.key, zoom: this.mapZoom, lat: this.mapLat, lon: this.mapLon })
+    // send change to parent application
+    this.sendModifications(event.key);
   }
 
   private handlingKeyboard(key): void {
@@ -259,17 +264,40 @@ export class MapLibraryComponent implements AfterViewInit {
     }
   }
 
-    // display move or zoom icon when press
-    private changeMode(): void {
-      this.moveMode = !this.moveMode;
-      if (this.moveMode) {
-        this.handleIcon = "move";
-        console.log("move");
-      } else {
-        this.handleIcon = "zoom";
-        console.log("zoom");
-      }
+  // display move or zoom icon when press
+  private changeMode(): void {
+    this.moveMode = !this.moveMode;
+    if (this.moveMode) {
+      this.handleIcon = "move";
+      console.log("move");
+    } else {
+      this.handleIcon = "zoom";
+      console.log("zoom");
     }
+  }
+
+  private sendModifications(key) {
+    // calcul map outline by container size and pixel progection
+    let mapSize = this.map.getSize();
+    let centerPixel = this.map.project([this.mapLat, this.mapLng], this.mapZoom)
+    let topLeft = this.map.unproject([centerPixel.x - mapSize.x / 2, centerPixel.y - mapSize.y / 2], this.mapZoom)
+    let bottomRight = this.map.unproject([centerPixel.x + mapSize.x / 2, centerPixel.y + mapSize.y / 2], this.mapZoom)
+
+    // send coordinates results
+    this.onchange.emit(
+      {
+        key: key,
+        zoom: this.mapZoom,
+        lat: this.mapLat,
+        lng: this.mapLng,
+        view: {
+          top: topLeft.lat,
+          left: topLeft.lng,
+          bottom: bottomRight.lat,
+          right: bottomRight.lng
+        }
+      })
+  }
 
   /*************** escape app functions *************/
 
@@ -291,24 +319,24 @@ export class MapLibraryComponent implements AfterViewInit {
     this.escapeMessage = "";
     this.validEscape = false;
   }
-  
+
   /*************** set position, move and zoom functions *************/
-  
+
   // set new coordinates and handle zoom 
   private setPosition(): void {
     let coord = this.map.getCenter();
     this.mapLat = coord.lat;
-    this.mapLon = coord.lng;
+    this.mapLng = coord.lng;
     this.mapZoom = this.map.getZoom();
     // calcul new move size
     this.setMoveShift();
   }
 
   // calcul new coordinates
-  private moveMap(lat, lon): void {
+  private moveMap(lat, lng): void {
     this.mapLat += lat * this.moveShift;
-    this.mapLon += lon * this.moveShift;
-    this.map.setView([this.mapLat, this.mapLon], this.mapZoom);
+    this.mapLng += lng * this.moveShift;
+    this.map.setView([this.mapLat, this.mapLng], this.mapZoom);
   }
 
   // update zoom
@@ -326,7 +354,7 @@ export class MapLibraryComponent implements AfterViewInit {
   }
 
   /*************** search input functions *************/
-  
+
   // set input focus or blur
   initInput() {
     // select search input box

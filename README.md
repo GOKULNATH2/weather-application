@@ -4,6 +4,25 @@ This is an application which allow to have map on web browser.
 
 after running npm run build map-library, the library is available in dist folder. you can copy the folder into your own project. An implement example is available in src app.
 
+## component event
+
+the component return json object from onchange event
+
+``` json
+{
+  key: "keyboard pressed key",
+  zoom: "map zoom",
+  lat: "map latitude",
+  lng: "map lnggitude",
+  view: {
+    top: "top max displayed lat",
+    left: "left max displayed lat",
+    bottom: "bottom max displayed lat",
+    right: "right max displayed lat"
+  }
+}
+```
+
 ## implement
 
 To implement the library, add elemants in each files:
@@ -13,7 +32,7 @@ To implement the library, add elemants in each files:
 ``` html
 <map-library 
     [mapLat]="mapLat" 
-    [mapLon]="mapLon" 
+    [mapLng]="mapLng" 
     [mapZoom]="mapZoom" 
     [search]="search" 
     [marker]="marker"
@@ -26,10 +45,10 @@ To implement the library, add elemants in each files:
 ``` ts
 // component values
 public mapLat: number = 45;
-public mapLon: number = 5;
+public mapLng: number = 5;
 public mapZoom: number = 5;
 public search: String = '';
-public marker:any = [{ text: "myText", img: "url.png", lat: 48, lon: -3 }];
+public marker:any = [{ text: "myText", content:"", img: "url.png", lat: 48, lng: -3 }];
 
 
 onMapChange(event) {
