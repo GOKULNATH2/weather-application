@@ -30,3 +30,11 @@
 .zoom {
     background-image: url("./assets/img/zoom.svg");
 }
+
+.search {
+    background-image: url("./assets/img/search.svg");
+}
+
+.logout {
+    background-image: url("./assets/img/logout.svg");
+}

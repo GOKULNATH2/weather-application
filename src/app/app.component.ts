@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
+import { AfterViewInit, Component} from '@angular/core';
+import * as commune from '../assets/commune.json';
 
 @Component({
   selector: 'app-root',
@@ -14,23 +15,30 @@ export class AppComponent implements AfterViewInit {
   public mapLng: number = -2.8125; // 5;
   public mapZoom: number = 8; //5;
   public search: String = '';
-  public marker: any = [{ text: "Lanion", content:"", img: "../assets/partly_cloudy.png", lat: 48.7333, lng: -3.4667 }, { text: "Rennes", img: "../assets/cloudy.png", lat: 48.11, lng: -1.6833 }];
-
+  public marker: any = []; //[{ text: "Lanion", content:"", img: "../assets/partly_cloudy.png", lat: 48.7333, lng: -3.4667 }, { text: "Rennes", img: "../assets/cloudy.png", lat: 48.11, lng: -1.6833 }];
 
   constructor() { }
 
   ngAfterViewInit(): void {
 
     setTimeout(() => {
-      //this.marker = [{ text: "Brest", img: "../assets/partly_cloudy.png", lat: 48.390394, lng: -4.486076 }, { text: "Lanion", content:"hello", img: "../assets/partly_cloudy.png", lat: 48.7333, lng: -3.4667 }, { text: "Rennes", img: "../assets/cloudy.png", lat: 48.11, lng: -1.6833 }];
     }, 5000)
   }
   
   onMapChange(event) {
-    console.log(event);
-    
-    this.marker = [{ text: "Paris", img: "../assets/cloudy.png", lat: 48.866667, lng: 2.333333 }, { text: "Brest", img: "../assets/partly_cloudy.png", lat: 48.390394, lng: -4.486076 }, { text: "Lanion", img: "../assets/partly_cloudy.png", lat: 48.7333, lng: -3.4667 }, { text: "Rennes", img: "../assets/cloudy.png", lat: 48.11, lng: -1.6833 }];
-
+    //console.log(event);
+    this.displayCities(event);
   }
 
+  displayCities(event){
+
+    let tab=[]
+    commune['communes'].forEach(element => {
+      if(element.zoom <= event.zoom && element.latitude < event.view.top && element.latitude > event.view.bottom && element.longitude < event.view.right && element.longitude > event.view.left){
+        tab.push({ text: element.nom_commune, content:"", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
+      }
+    });
+    this.marker = tab;
+  }
+  
 }

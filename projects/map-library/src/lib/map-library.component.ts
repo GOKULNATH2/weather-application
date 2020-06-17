@@ -38,12 +38,12 @@ export class MapLibraryComponent implements AfterViewInit {
   private geocoder;
   private searchInput;
   private searchInputFocused = false;
-  private validEscape = false;
   private moveMode = true;
   private moveShift;
   public handleIcon = "move";
-  public escapeMessage = "";
-  public choiseMessage = true;
+  public handleMenuIcon = "zoom";
+  public displayMenu = "";
+  public choiseMenu = 1;
 
   constructor(private elem: ElementRef) { }
 
@@ -56,6 +56,10 @@ export class MapLibraryComponent implements AfterViewInit {
     // init display input request
     this.setSearch(this.search);
     this.setMarker(this.marker);
+    // send init event
+    setTimeout(() => {
+      this.sendModifications("");
+    }, 2000)
   }
 
   private initMap(): void {
@@ -133,8 +137,8 @@ export class MapLibraryComponent implements AfterViewInit {
     return new L.Marker([element.lat, element.lng], {
       icon: new L.DivIcon({
         className: '',
-        iconSize: [70, 70], // size of the icon
-        iconAnchor: [35, element.img ? 40 : 10],
+        iconSize: [90, 70], // size of the icon
+        iconAnchor: [45, element.img ? 40 : 10],
         html,
       })
     })
@@ -168,20 +172,13 @@ export class MapLibraryComponent implements AfterViewInit {
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
 
-    let fromZoom = this.mapZoom;
-
-    if (this.escapeMessage == "") {
-      if (!this.searchInputFocused) {
-        this.handlingMap(event.key);
-      } else {
-        this.handlingKeyboard(event.key);
-      }
-      this.escapeApp(event.key);
+    if (this.displayMenu == "") {
+      this.handlingMap(event.key)
+      // send change to parent application
+      this.sendModifications(event.key);
     } else {
-      this.handlingEscapeMessage(event.key);
+      this.handlingMenu(event.key);
     }
-    // send change to parent application
-    this.sendModifications(event.key);
   }
 
   private handlingKeyboard(key): void {
@@ -198,21 +195,32 @@ export class MapLibraryComponent implements AfterViewInit {
     }
   }
 
-  private handlingEscapeMessage(key): void {
+  private handlingMenu(key): void {
     switch (key) {
       case "ArrowRight":
-      case "ArrowLeft":
-        this.choiseMessage = !this.choiseMessage;
-        break;
-      case "Enter":
-        if (this.choiseMessage) {
-          alert("quitt");
-        } else {
-          this.clearEscape();
+        this.choiseMenu++;
+        if (this.choiseMenu > 2) {
+          this.choiseMenu = 0;
         }
         break;
+      case "ArrowLeft":
+        this.choiseMenu--;
+        if (this.choiseMenu < 0) {
+          this.choiseMenu = 2;
+        }
+        break;
+      case "Enter":
+        if (this.choiseMenu == 0) {
+          this.setFocus()
+        } else if (this.choiseMenu == 1) {
+          this.changeMode()
+        } else {
+          alert("exit")
+        }
+        this.closeMenu()
+        break;
       case "Escape":
-        this.clearEscape();
+        this.closeMenu();
         break;
     }
   }
@@ -256,10 +264,10 @@ export class MapLibraryComponent implements AfterViewInit {
         }
         break;
       case "Enter":
-        this.changeMode();
+        this.changeMode()
         break;
       case "Escape":
-        this.setFocus();
+        this.openMenu();
         break;
     }
   }
@@ -269,9 +277,11 @@ export class MapLibraryComponent implements AfterViewInit {
     this.moveMode = !this.moveMode;
     if (this.moveMode) {
       this.handleIcon = "move";
+      this.handleMenuIcon = "zoom"
       console.log("move");
     } else {
       this.handleIcon = "zoom";
+      this.handleMenuIcon = "move"
       console.log("zoom");
     }
   }
@@ -301,23 +311,21 @@ export class MapLibraryComponent implements AfterViewInit {
 
   /*************** escape app functions *************/
 
-  // show escape message
-  private escapeApp(key): void {
-    if (key == "Escape") {
-      if (this.validEscape) {
-        this.escapeMessage = "show-message";
-      } else {
-        this.validEscape = true;
-      }
-    } else {
-      this.validEscape = false;
-    }
+  private openMenu(): void {
+    this.displayMenu = "show-menu";
   }
 
-  // hide escape message
-  private clearEscape() {
-    this.escapeMessage = "";
-    this.validEscape = false;
+  private closeMenu(): void {
+    this.displayMenu = "";
+    this.choiseMenu = 1;
+  }
+  // show escape message
+  private selectMenu(key): void {
+    if (key == "Escape") {
+      this.closeMenu()
+    } else {
+      //this.validEscape = false;
+    }
   }
 
   /*************** set position, move and zoom functions *************/

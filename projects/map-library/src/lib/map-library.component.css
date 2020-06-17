@@ -12,7 +12,7 @@
     height: 100%;
 }
 
-.icon {
+.map-container .icon {
     position: absolute;
     z-index: 1000;
     top: 10px;
@@ -21,7 +21,7 @@
     height: 50px;
 }
 
-.message-container {
+.menu-container {
     position: absolute;
     z-index: 1001;
     top: 0;
@@ -32,32 +32,34 @@
     display: none;
 }
 
-.message-box {
+.menu-box {
     position: absolute;
     top: calc(50% - 100px);
     left: calc(50% - 200px);
-    width: 600px;
-    height: 200px;
+    width: 450px;
+    height: 150px;
     background-color: white;
     border: 1px solid orange!important;
     text-align: center;
     margin-top: 50px;
-    font-size: 25px;
 }
 
-.message-container button {
-    background-color: orange;
-    color: white;
+.menu-box .icon {
+    display: inline-block;
+    width: 150px;
+    height: 150px;
     border: 0;
     border-radius: 3px;
-    padding: 20px 30px;
-    margin: 20px;
+    background-size: 100px 100px;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-.message-container.show-message {
+.menu-box .selected {
+    /*border: 5px solid orange;*/
+    background-color: orange;
+}
+
+.show-menu {
     display: block;
-}
-
-.message-container .selected {
-    border: 5px solid black;
 }
