@@ -35,7 +35,7 @@ export class AppComponent implements AfterViewInit {
     let tab=[]
     cities['cities'].forEach(element => {
       if(element.zoom <= event.zoom && element.latitude < event.view.top && element.latitude > event.view.bottom && element.longitude < event.view.right && element.longitude > event.view.left){
-        tab.push({ text: element.city, content:"<div align='center'>12°c - 28°c</div>", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
+        tab.push({ text: element.city, content:"<span style='color:blue'>12°c</span> - <span style='color:green'>28°c</span>", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
       }
     });
     this.marker = tab;

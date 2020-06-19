@@ -128,17 +128,17 @@ export class MapLibraryComponent implements AfterViewInit {
   private generateIconMarker(element) {
 
     // set html form
-    let html = `<div style="background: white; border-radius:20px; position:absolute; padding: 5px 5px 0 5px;">
+    let html = `<div style="background: white; border-radius:20px; position:absolute; padding:5px 10px 0 10px; text-align:center;">
               <div style="text-align:center; font-size:1.2em;">${element.text}</div>
               `+ (element.content ? `<span>${element.content}</span>` : ``) +
-      (element.img ? `<img style="width:100%" src="${element.img}"/>` : ``) + `
+      (element.img ? `<img style="width:60px" src="${element.img}"/>` : ``) + `
             </div>`
 
     // return leaflet marker
     return new L.Marker([element.lat, element.lng], {
       icon: new L.DivIcon({
         className: '',
-        iconSize: [90, 70], // size of the icon
+        iconSize: [100, 70], // size of the icon
         iconAnchor: [45, element.img ? 40 : 10],
         html,
       })
