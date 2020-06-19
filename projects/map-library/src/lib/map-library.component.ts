@@ -37,6 +37,7 @@ export class MapLibraryComponent implements AfterViewInit {
   private map;
   private geocoder;
   private searchInput;
+  private searchBar;
   private searchInputFocused = false;
   private moveMode = true;
   private moveShift;
@@ -212,9 +213,12 @@ export class MapLibraryComponent implements AfterViewInit {
       case "Enter":
         if (this.choiseMenu == 0) {
           this.setFocus()
-        } else if (this.choiseMenu == 1) {
-          this.changeMode()
         } else {
+          this.setFocusOut();
+        } 
+        if (this.choiseMenu == 1) {
+          this.changeMode()
+        } else if (this.choiseMenu == 2) {
           alert("exit")
         }
         this.closeMenu()
@@ -369,13 +373,20 @@ export class MapLibraryComponent implements AfterViewInit {
     this.searchInput = this.elem.nativeElement.querySelector(
       ".leaflet-control-geocoder-form input"
     );
+    this.searchBar = this.elem.nativeElement.querySelector(
+      ".leaflet-bar"
+    );
+    this.setFocusOut();
   }
   setFocus() {
+    
+    this.searchBar.style.display = "block";
     this.searchInput.focus();
     this.searchInputFocused = true;
   }
   setFocusOut() {
     this.searchInput.blur();
+    this.searchBar.style.display = "none";
     this.searchInputFocused = false;
 
     this.setPosition();
