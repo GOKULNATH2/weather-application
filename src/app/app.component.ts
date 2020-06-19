@@ -1,5 +1,5 @@
 import { AfterViewInit, Component} from '@angular/core';
-import * as commune from '../assets/commune.json';
+import * as cities from '../assets/commune.json';
 
 @Component({
   selector: 'app-root',
@@ -11,9 +11,9 @@ export class AppComponent implements AfterViewInit {
   title = 'map-application';
 
   // component values
-  public mapLat: number = 48.125; // 45;
-  public mapLng: number = -2.8125; // 5;
-  public mapZoom: number = 8; //5;
+  public mapLat: number = 45;
+  public mapLng: number = 5;
+  public mapZoom: number = 6;
   public search: String = '';
   public marker: any = []; //[{ text: "Lanion", content:"", img: "../assets/partly_cloudy.png", lat: 48.7333, lng: -3.4667 }, { text: "Rennes", img: "../assets/cloudy.png", lat: 48.11, lng: -1.6833 }];
 
@@ -33,9 +33,9 @@ export class AppComponent implements AfterViewInit {
   displayCities(event){
 
     let tab=[]
-    commune['communes'].forEach(element => {
+    cities['cities'].forEach(element => {
       if(element.zoom <= event.zoom && element.latitude < event.view.top && element.latitude > event.view.bottom && element.longitude < event.view.right && element.longitude > event.view.left){
-        tab.push({ text: element.nom_commune, content:"", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
+        tab.push({ text: element.city, content:"<div align='center'>12°c - 28°c</div>", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
       }
     });
     this.marker = tab;

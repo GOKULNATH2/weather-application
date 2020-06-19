@@ -72,3 +72,27 @@ imports: [
 ``` css
 @import "~../dist/map-library/src/styles.css";
 ```
+
+## populate map with cities
+
+add file json-typings.ts to import json file who contain cities datas
+
+add in app.component.ts
+
+``` ts
+import * as commune from '../assets/commune.json';
+
+onMapChange(event) {
+  this.displayCities(event);
+}
+
+displayCities(event){
+  let tab=[]
+  cities['cities'].forEach(element => {
+    if(element.zoom <= event.zoom && element.latitude < event.view.top && element.latitude > event.view.bottom && element.longitude < event.view.right && element.longitude > event.view.left){
+      tab.push({ text: element.city, content:"<div align='center'>12°c - 28°c</div>", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
+    }
+  });
+  this.marker = tab;
+}
+```
