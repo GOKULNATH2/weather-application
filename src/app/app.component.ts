@@ -24,6 +24,10 @@ export class AppComponent implements AfterViewInit {
     setTimeout(() => {
     }, 5000)
   }
+
+  onMapSelect(selected) {
+    console.log(selected);
+  }
   
   onMapChange(event) {
     //console.log(event);

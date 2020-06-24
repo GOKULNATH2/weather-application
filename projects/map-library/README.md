@@ -23,6 +23,18 @@ the component return json object from onchange event
 }
 ```
 
+the component return json object from onselect event
+
+``` json
+{ 
+  text: "", 
+  content:"", 
+  img: "", 
+  lat: 48.56, 
+  lng: 3.12 
+}
+```
+
 ## implement
 
 To implement the library, add elemants in each files:
@@ -36,7 +48,8 @@ To implement the library, add elemants in each files:
     [mapZoom]="mapZoom" 
     [search]="search" 
     [marker]="marker"
-    (onchange)="onMapChange($event)">
+    (onchange)="onMapChange($event)"
+    (onselect)="onMapSelect($event)">
 </map-library>
 ```
 
@@ -53,6 +66,9 @@ public marker:any = [{ text: "myText", content:"", img: "url.png", lat: 48, lng:
 
 onMapChange(event) {
   console.log(event);
+}
+onMapSelect(selected) {
+  console.log(selected);
 }
 ```
 
@@ -71,4 +87,28 @@ imports: [
 
 ``` css
 @import "~../dist/map-library/src/styles.css";
+```
+
+## populate map with cities
+
+add file json-typings.ts to import json file who contain cities datas
+
+add in app.component.ts
+
+``` ts
+import * as commune from '../assets/commune.json';
+
+onMapChange(event) {
+  this.displayCities(event);
+}
+
+displayCities(event){
+  let tab=[]
+  cities['cities'].forEach(element => {
+    if(element.zoom <= event.zoom && element.latitude < event.view.top && element.latitude > event.view.bottom && element.longitude < event.view.right && element.longitude > event.view.left){
+      tab.push({ text: element.city, content:"<div align='center'>12°c - 28°c</div>", img: "../assets/partly_cloudy.png", lat: element.latitude, lng: element.longitude })
+    }
+  });
+  this.marker = tab;
+}
 ```

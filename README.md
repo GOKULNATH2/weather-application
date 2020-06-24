@@ -23,6 +23,18 @@ the component return json object from onchange event
 }
 ```
 
+the component return json object from onselect event
+
+``` json
+{ 
+  text: "", 
+  content:"", 
+  img: "", 
+  lat: 48.56, 
+  lng: 3.12 
+}
+```
+
 ## implement
 
 To implement the library, add elemants in each files:
@@ -36,7 +48,8 @@ To implement the library, add elemants in each files:
     [mapZoom]="mapZoom" 
     [search]="search" 
     [marker]="marker"
-    (onchange)="onMapChange($event)">
+    (onchange)="onMapChange($event)"
+    (onselect)="onMapSelect($event)">
 </map-library>
 ```
 
@@ -53,6 +66,9 @@ public marker:any = [{ text: "myText", content:"", img: "url.png", lat: 48, lng:
 
 onMapChange(event) {
   console.log(event);
+}
+onMapSelect(selected) {
+  console.log(selected);
 }
 ```
 

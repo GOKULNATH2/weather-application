@@ -33,6 +33,7 @@ export class MapLibraryComponent implements AfterViewInit {
   public marker: any;
 
   @Output() onchange = new EventEmitter<any>();
+  @Output() onselect = new EventEmitter<any>();
 
   private map;
   private geocoder;
@@ -45,6 +46,8 @@ export class MapLibraryComponent implements AfterViewInit {
   public handleMenuIcon = "zoom";
   public displayMenu = "";
   public choiseMenu = 1;
+  private navigate = false;
+  private navigateId = 0;
 
   constructor(private elem: ElementRef) { }
 
@@ -106,6 +109,7 @@ export class MapLibraryComponent implements AfterViewInit {
     let i = 0;
     marker.forEach(element => {
       if ("lat" in element && "lng" in element) {
+        element.id=i;
         if (!element.text) {
           this.mapMarkers[i] = L.marker([element.lat, element.lng])
         } else {
@@ -128,7 +132,7 @@ export class MapLibraryComponent implements AfterViewInit {
   private generateIconMarker(element) {
 
     // set html form
-    let html = `<div style="background: white; border-radius:20px; position:absolute; padding:5px 10px 0 10px; text-align:center;">
+    let html = `<div id="marker_${element.id}" style="background: white; border-radius:20px; position:absolute; padding:5px 10px 0 10px; text-align:center;">
               <div style="text-align:center; font-size:1.2em;">${element.text}</div>
               `+ (element.content ? `<span>${element.content}</span>` : ``) +
       (element.img ? `<img style="width:60px" src="${element.img}"/>` : ``) + `
@@ -165,7 +169,7 @@ export class MapLibraryComponent implements AfterViewInit {
       }
     }
   }
-  rectangle;
+
   /*************** keyboard event detect and functions *************/
 
 
@@ -173,25 +177,40 @@ export class MapLibraryComponent implements AfterViewInit {
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
 
-    if (this.displayMenu == "") {
+    if (this.displayMenu != "") {
+      this.handlingMenu(event.key);
+
+    } else if(this.navigate){
+      this.handlingNavigation(event.key)
+
+    } else {
       this.handlingMap(event.key)
       // send change to parent application
       this.sendModifications(event.key);
-    } else {
-      this.handlingMenu(event.key);
     }
   }
 
-  private handlingKeyboard(key): void {
+  private handlingNavigation(key): void {
     switch (key) {
+      case "ArrowUp":
+        this.navigateMarker(1,0)
+        break;
+      case "ArrowDown":
+        this.navigateMarker(-1,0)
+        break;
       case "ArrowRight":
+        this.navigateMarker(0,1)
         break;
       case "ArrowLeft":
+        this.navigateMarker(0,-1)
         break;
       case "Enter":
+        // send change to parent application
+        if(this.marker[this.navigateId])
+          this.sendSelectEvent(this.marker[this.navigateId])
         break;
       case "Escape":
-        this.setFocusOut();
+        this.openMenu();
         break;
     }
   }
@@ -200,25 +219,33 @@ export class MapLibraryComponent implements AfterViewInit {
     switch (key) {
       case "ArrowRight":
         this.choiseMenu++;
-        if (this.choiseMenu > 2) {
+        if (this.choiseMenu > 3) {
           this.choiseMenu = 0;
         }
         break;
       case "ArrowLeft":
         this.choiseMenu--;
         if (this.choiseMenu < 0) {
-          this.choiseMenu = 2;
+          this.choiseMenu = 3;
         }
         break;
       case "Enter":
+        // reset navigation mode
+        this.navigate=false;
+
         if (this.choiseMenu == 0) {
           this.setFocus()
         } else {
           this.setFocusOut();
         } 
         if (this.choiseMenu == 1) {
+          this.setMarker(this.marker);
           this.changeMode()
-        } else if (this.choiseMenu == 2) {
+
+        } else if(this.choiseMenu==2){
+          this.setNavigationMode()
+
+        } else if (this.choiseMenu == 3) {
           alert("exit")
         }
         this.closeMenu()
@@ -282,11 +309,9 @@ export class MapLibraryComponent implements AfterViewInit {
     if (this.moveMode) {
       this.handleIcon = "move";
       this.handleMenuIcon = "zoom"
-      console.log("move");
     } else {
       this.handleIcon = "zoom";
       this.handleMenuIcon = "move"
-      console.log("zoom");
     }
   }
 
@@ -309,8 +334,12 @@ export class MapLibraryComponent implements AfterViewInit {
           left: topLeft.lng,
           bottom: bottomRight.lat,
           right: bottomRight.lng
-        }
+        }       
       })
+  }
+
+  private sendSelectEvent(selected) {
+    this.onselect.emit(selected)
   }
 
   /*************** escape app functions *************/
@@ -329,6 +358,133 @@ export class MapLibraryComponent implements AfterViewInit {
       this.closeMenu()
     } else {
       //this.validEscape = false;
+    }
+  }
+
+  /*************** navigate between markers *************/
+
+  private setNavigationMode(): void{
+    this.navigate=true;
+    this.handleIcon = "navigation";
+    this.navigateMarker(0,0)
+    // define menu to move
+    this.moveMode = false
+    this.handleMenuIcon = "move"
+  }
+
+  private navigateMarker(lat, lng): void{
+    if(!this.marker.length){
+      return;
+    }
+    if(this.marker.length==1){
+      this.navigateId = 0;
+      this.elem.nativeElement.querySelector("#marker_"+this.navigateId).style.background="orange";
+      return;
+    }
+    if(this.navigateId > this.marker.length){
+      this.navigateId = 0;
+    }
+    if(lat!=0 || lng != 0){
+      // reset previous
+      this.elem.nativeElement.querySelector("#marker_"+this.marker[this.navigateId].id).style.background="white";    
+    }
+    // display new
+    if(lng>0){
+      this.findFirstRightElement();
+    }else if(lng<0){
+      this.findFirstLeftElement();
+    }else if(lat>0){
+      this.findFirstTopElement();
+    }else if(lat<0){
+      this.findFirstBottomElement();
+    }else {
+      this.navigateId=0
+    }
+    this.elem.nativeElement.querySelector("#marker_"+this.navigateId).style.background="orange";
+  }
+
+  private findFirstLeftElement(){
+    let selected = this.marker[this.navigateId];
+    let newSelect = this.marker[this.navigateId==0?1:0];
+    this.marker.forEach(element => {
+      if(element!=selected && element.lng < selected.lng && (element.lng > newSelect.lng || newSelect.lng > selected.lng)){
+        newSelect = element;
+      }
+    });
+    if(newSelect.lng >= selected.lng){
+      let min=this.marker[0]
+      this.marker.forEach(element => {
+        if(element.lng > min.lng){
+          min = element;
+        }
+      });
+      this.navigateId = min.id;
+    }else{
+      this.navigateId=newSelect.id
+    }
+  }
+
+  private findFirstRightElement(){
+    let selected = this.marker[this.navigateId];
+    let newSelect = this.marker[this.navigateId==0?1:0];
+    this.marker.forEach(element => {
+      if(element!=selected && element.lng > selected.lng && (element.lng < newSelect.lng || newSelect.lng < selected.lng)){
+        newSelect = element;
+      }
+    });
+    if(newSelect.lng <= selected.lng){
+      let min=this.marker[0]
+      this.marker.forEach(element => {
+        if(element.lng < min.lng){
+          min = element;
+        }
+      });
+      this.navigateId = min.id;
+    }else{
+      this.navigateId=newSelect.id
+    }
+  }
+
+  private findFirstBottomElement(){
+    let selected = this.marker[this.navigateId];
+    let newSelect = this.marker[this.navigateId==0?1:0];
+    this.marker.forEach(element => {
+      if(element!=selected && element.lat < selected.lat && (element.lat > newSelect.lat || newSelect.lat > selected.lat)){
+        newSelect = element;
+      }
+    });
+    if(newSelect.lat >= selected.lat){
+      let min=this.marker[0]
+      this.marker.forEach(element => {
+        
+        if(element.lat > min.lat){
+          min = element;
+        }
+      });
+      this.navigateId = min.id;
+    }else{
+      this.navigateId=newSelect.id
+    }
+  }
+    
+  private findFirstTopElement(){
+    let selected = this.marker[this.navigateId];
+    let newSelect = this.marker[this.navigateId==0?1:0];
+    this.marker.forEach(element => {
+      if(element!=selected && element.lat > selected.lat && (element.lat < newSelect.lat || newSelect.lat < selected.lat)){
+        newSelect = element;
+      }
+    });
+    if(newSelect.lat <= selected.lat){
+      let min=this.marker[0]
+      this.marker.forEach(element => {
+        if(element.lat < min.lat){
+          min = element;
+        }
+      });
+      this.navigateId = min.id;
+    }else{
+      this.navigateId=newSelect.id
     }
   }
 
