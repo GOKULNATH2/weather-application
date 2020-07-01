@@ -35,8 +35,8 @@
 .menu-box {
     position: absolute;
     top: calc(50% - 100px);
-    left: calc(50% - 300px);
-    width: 600px;
+    left: calc(50% - 375px);
+    width: 750px;
     height: 150px;
     background-color: white;
     border: 1px solid orange!important;
