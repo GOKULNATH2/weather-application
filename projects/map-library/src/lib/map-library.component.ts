@@ -416,30 +416,44 @@ export class MapLibraryComponent implements AfterViewInit {
     this.sendModifications("")
   }
 
+  private calcAngle(adjacent, opposite) {
+    return Math.atan(Math.abs(opposite)/Math.abs(adjacent)) * (180/Math.PI);
+  }
+  private calcHyp(adjacent, opposite) {
+    return Math.sqrt(Math.pow(adjacent, 2) + Math.pow(opposite, 2));;
+  }
+
   private findFirstLeftElement() {
     let selected = this.marker[this.navigateId];
-    let newSelect = this.marker[this.navigateId == 0 ? 1 : 0];
+    let newSelect = null;
     this.marker.forEach(element => {
-      if (element != selected && element.lng < selected.lng && (element.lng > newSelect.lng || newSelect.lng > selected.lng)) {
-        newSelect = element;
+      if (element != selected && element.lng < selected.lng && (newSelect==null || (element.lng > newSelect.lng || newSelect.lng > selected.lng))) {
+        let angle=this.calcAngle(element.lng - selected.lng, element.lat - selected.lat);
+        //console.log(element.text+" "+angle)
+        if(angle<45){
+          newSelect = element;
+        }
       }
     });
-    if (newSelect.lng >= selected.lng) {
+    if (newSelect==null || newSelect.lng >= selected.lng) {
       this.navigateId = selected.id;
     } else {
       this.navigateId = newSelect.id
     }
   }
-
+  
   private findFirstRightElement() {
     let selected = this.marker[this.navigateId];
-    let newSelect = this.marker[this.navigateId == 0 ? 1 : 0];
+    let newSelect = null
     this.marker.forEach(element => {
-      if (element != selected && element.lng > selected.lng && (element.lng < newSelect.lng || newSelect.lng < selected.lng)) {
-        newSelect = element;
+      if (element != selected && element.lng > selected.lng && (newSelect==null || (element.lng < newSelect.lng || newSelect.lng < selected.lng))) {
+        let angle=this.calcAngle(element.lng - selected.lng, element.lat - selected.lat);
+        if(angle<45){
+          newSelect = element;
+        }
       }
     });
-    if (newSelect.lng <= selected.lng) {
+    if (newSelect==null || newSelect.lng <= selected.lng) {
       this.navigateId = selected.id;
     } else {
       this.navigateId = newSelect.id
@@ -451,7 +465,7 @@ export class MapLibraryComponent implements AfterViewInit {
     let newSelect = this.marker[this.navigateId == 0 ? 1 : 0];
     this.marker.forEach(element => {
       if (element != selected && element.lat < selected.lat && (element.lat > newSelect.lat || newSelect.lat > selected.lat)) {
-        newSelect = element;
+          newSelect = element;
       }
     });
     if (newSelect.lat >= selected.lat) {
@@ -466,7 +480,7 @@ export class MapLibraryComponent implements AfterViewInit {
     let newSelect = this.marker[this.navigateId == 0 ? 1 : 0];
     this.marker.forEach(element => {
       if (element != selected && element.lat > selected.lat && (element.lat < newSelect.lat || newSelect.lat < selected.lat)) {
-        newSelect = element;
+          newSelect = element;
       }
     });
     if (newSelect.lat <= selected.lat) {
