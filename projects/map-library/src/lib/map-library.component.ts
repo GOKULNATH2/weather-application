@@ -110,7 +110,9 @@ export class MapLibraryComponent implements AfterViewInit {
     marker.forEach(element => {
       if ("lat" in element && "lng" in element) {
         element.id = i;
-        if (!element.text) {
+        if (!element.text && element.img) {
+          this.mapMarkers[i] = this.generateImageMarker(element)
+        } else if (!element.text) {
           this.mapMarkers[i] = L.marker([element.lat, element.lng])
         } else {
           this.mapMarkers[i] = this.generateIconMarker(element)
@@ -140,7 +142,7 @@ export class MapLibraryComponent implements AfterViewInit {
     let html = `<div id="marker_${element.id}" style="background: white; border-radius:20px; position:absolute; padding:5px 10px 0 10px; text-align:center;">
               <div style="text-align:center; font-size:1.2em;">${element.text}</div>
               `+ (element.content ? `<span>${element.content}</span>` : ``) +
-      (element.img ? `<img style="width:60px" src="${element.img}"/>` : ``) + `
+              (element.img ? `<img style="width:60px" src="${element.img}"/>` : ``) + `
             </div>`
 
     // return leaflet marker
@@ -148,6 +150,23 @@ export class MapLibraryComponent implements AfterViewInit {
       icon: new L.DivIcon({
         className: '',
         iconSize: [100, 70], // size of the icon
+        iconAnchor: [45, element.img ? 40 : 10],
+        html,
+      })
+    })
+  }
+
+  // generate image Marker
+  private generateImageMarker(element) {
+
+    // set html form
+    let html = `<img id="marker_${element.id}" style="width:80px;" src="${element.img}"/>`
+
+    // return leaflet marker
+    return new L.Marker([element.lat, element.lng], {
+      icon: new L.DivIcon({
+        className: '',
+        iconSize: [80, 70], // size of the icon
         iconAnchor: [45, element.img ? 40 : 10],
         html,
       })
@@ -237,7 +256,6 @@ export class MapLibraryComponent implements AfterViewInit {
       case "Enter":
         // reset navigation mode
         this.navigate = false;
-        console.log(this.choiseMenu)
 
         if (this.choiseMenu == 0) {
           this.setFocus()

@@ -19,6 +19,7 @@
         "@angular/platform-browser": "^9.0.7",
         "@angular/platform-browser-dynamic": "~9.0.7",
         "@angular/router": "~9.0.7",
+        "exif-js": "^2.3.0",
         "leaflet": "1.6.0",
         "leaflet-control-geocoder": "^1.13.0",
         "rxjs": "~6.5.4",
