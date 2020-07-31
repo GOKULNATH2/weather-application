@@ -1,1 +1,82 @@
 @import "~../dist/map-library/src/styles.css";
+
+* {
+    font-family: Arial;
+}
+
+#infobox {
+    position: fixed;
+    top:5%;
+    left:10%;
+    height: 90%;
+    width: 80%;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.9);
+    border: 1px solid orange;
+    display: none;
+    padding: 3%;
+}
+#infobox, #infobox *{
+    box-sizing: border-box;
+}
+h2{
+    color: white;
+    font-size: 35px;
+    line-height: 70px;
+    height: 70px;
+    padding-left: 30px;
+    margin: 0;
+}
+#infobox .content {
+    font-size: 30px;
+    width: 100%;
+    color: white;
+}
+#infobox .content *{
+    color: white;
+    font-weight: 500;
+}
+.col{
+    display: inline-block;
+    width: 48%;
+    height: 100%;
+    vertical-align: top;
+    overflow: scroll;
+}
+#infobox .wheather {
+    width: 500px;
+}
+.wheatherInfo {
+    text-align: center;
+}
+.wheatherInfo img{
+    width: 200px;
+    padding-top: 50px;
+}
+.thumb{
+    width: calc(100% - 505px);
+    border-left: 1px solid orange;
+    padding-left: 20px;
+}
+.infotitle {
+    color: white;
+}
+
+.imgContainer {
+    display: inline-block;
+    width: 200px;
+    height: 150px;
+    margin: 5px;
+    overflow: hidden;
+}
+.imgContainer div {
+    overflow: auto;
+}
+.imgContainer img {
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+    width: 0;
+}

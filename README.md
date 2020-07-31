@@ -48,6 +48,7 @@ To implement the library, add elemants in each files:
     [mapZoom]="mapZoom" 
     [search]="search" 
     [marker]="marker"
+    [focused]="focused"
     (onchange)="onMapChange($event)"
     (onselect)="onMapSelect($event)">
 </map-library>
@@ -62,6 +63,7 @@ public mapLng: number = 5;
 public mapZoom: number = 5;
 public search: String = '';
 public marker:any = [{ text: "myText", content:"", img: "url.png", lat: 48, lng: -3 }];
+public focused: boolean = true;
 
 
 onMapChange(event) {

@@ -2,6 +2,11 @@
 
 @import "~leaflet/dist/leaflet.css";
 @import "~leaflet-control-geocoder/dist/Control.Geocoder.css";
+
+* {
+    font-family: Arial;
+}
+
 .leaflet-bar {
     font-size: 18px!important;
     width: 300px!important;
@@ -41,4 +46,21 @@
 
 .navigation {
     background-image: url("./assets/img/navigation.svg");
+}
+
+.marker {
+    background: white; 
+    border-radius:20px; 
+    position:absolute; 
+    padding:5px 10px 0 10px; 
+    text-align:center;
+    font-weight: 500;
+    font-size:16px;
+}
+.marker div{
+    text-align:center; 
+    width: 90px;
+}
+.marker img{
+    width:60px
 }

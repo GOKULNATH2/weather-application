@@ -18,7 +18,7 @@ export enum CONST {
 
 @Component({
   selector: "map-library",
-  inputs: ['mapLat', 'mapLng', 'mapZoom', 'search', 'marker'],
+  inputs: ['mapLat', 'mapLng', 'mapZoom', 'search', 'marker','focused'],
   templateUrl: "./map-library.component.html",
   styleUrls: ["./map-library.component.css",],
 })
@@ -31,6 +31,7 @@ export class MapLibraryComponent implements AfterViewInit {
   public mapZoom: number = 5;
   public search: String;
   public marker: any;
+  public focused: boolean;
 
   @Output() onchange = new EventEmitter<any>();
   @Output() onselect = new EventEmitter<any>();
@@ -139,18 +140,19 @@ export class MapLibraryComponent implements AfterViewInit {
   private generateIconMarker(element) {
 
     // set html form
-    let html = `<div id="marker_${element.id}" style="background: white; border-radius:20px; position:absolute; padding:5px 10px 0 10px; text-align:center;">
-              <div style="text-align:center; font-size:1.2em;">${element.text}</div>
-              `+ (element.content ? `<span>${element.content}</span>` : ``) +
-              (element.img ? `<img style="width:60px" src="${element.img}"/>` : ``) + `
-            </div>`
+    let html = `
+      <div class="marker" id="marker_${element.id}">
+        <div>${element.text}</div>
+        `+ (element.content ? `<span>${element.content}</span>` : ``) +
+        (element.img ? `<img src="${element.img}"/>` : ``) + `
+      </div>`
 
     // return leaflet marker
     return new L.Marker([element.lat, element.lng], {
       icon: new L.DivIcon({
         className: '',
         iconSize: [100, 70], // size of the icon
-        iconAnchor: [45, element.img ? 40 : 10],
+        iconAnchor: [60, element.img ? 40 : 10],
         html,
       })
     })
@@ -200,17 +202,18 @@ export class MapLibraryComponent implements AfterViewInit {
 
   @HostListener("window:keyup", ["$event"])
   keyEvent(event: KeyboardEvent) {
+    if(this.focused){
+      if (this.displayMenu != "") {
+        this.handlingMenu(event.key);
 
-    if (this.displayMenu != "") {
-      this.handlingMenu(event.key);
+      } else if (this.navigate) {
+        this.handlingNavigation(event.key)
 
-    } else if (this.navigate) {
-      this.handlingNavigation(event.key)
-
-    } else {
-      this.handlingMap(event.key)
-      // send change to parent application
-      this.sendModifications(event.key);
+      } else {
+        this.handlingMap(event.key)
+        // send change to parent application
+        this.sendModifications(event.key);
+      }
     }
   }
 
