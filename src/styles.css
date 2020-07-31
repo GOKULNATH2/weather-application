@@ -41,7 +41,9 @@ h2{
     width: 48%;
     height: 100%;
     vertical-align: top;
-    overflow: scroll;
+    overflow-y: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 #infobox .wheather {
     width: 500px;
