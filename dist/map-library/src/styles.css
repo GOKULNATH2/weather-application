@@ -1,0 +1,66 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~leaflet/dist/leaflet.css";
+@import "~leaflet-control-geocoder/dist/Control.Geocoder.css";
+
+* {
+    font-family: Arial;
+}
+
+.leaflet-bar {
+    font-size: 18px!important;
+    width: 300px!important;
+    padding: 8px!important;
+    border-radius: 0px!important;
+    border: 1px solid orange!important;
+}
+
+.leaflet-control-geocoder-selected {
+    background-color: orange!important;
+}
+
+.leaflet-control-geocoder-alternatives {
+    width: 100%;
+}
+
+.leaflet-marker-shadow{
+    background: transparent;
+    display: none!important;
+}
+
+.move {
+    background-image: url("./assets/img/move.svg");
+}
+
+.zoom {
+    background-image: url("./assets/img/zoom.svg");
+}
+
+.search {
+    background-image: url("./assets/img/search.svg");
+}
+
+.logout {
+    background-image: url("./assets/img/logout.svg");
+}
+
+.navigation {
+    background-image: url("./assets/img/navigation.svg");
+}
+
+.marker {
+    background: white; 
+    border-radius:20px; 
+    position:absolute; 
+    padding:5px 10px 0 10px; 
+    text-align:center;
+    font-weight: 500;
+    font-size:16px;
+}
+.marker div{
+    text-align:center; 
+    width: 90px;
+}
+.marker img{
+    width:60px
+}

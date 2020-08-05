@@ -1,0 +1,27 @@
+{
+  "name": "map-library",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^9.1.9",
+    "@angular/core": "^9.1.9"
+  },
+  "dependencies": {
+    "tslib": "^1.10.0"
+  },
+  "assets": [
+    "src/favicon.ico",
+    "src/assets"
+  ],
+  "main": "bundles/map-library.umd.js",
+  "module": "fesm5/map-library.js",
+  "es2015": "fesm2015/map-library.js",
+  "esm5": "esm5/map-library.js",
+  "esm2015": "esm2015/map-library.js",
+  "fesm5": "fesm5/map-library.js",
+  "fesm2015": "fesm2015/map-library.js",
+  "typings": "map-library.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "prepublishOnly": "node --eval \"console.error('ERROR: Trying to publish a package that has been compiled by Ivy. This is not allowed.\\nPlease delete and rebuild the package, without compiling with Ivy, before attempting to publish.\\n')\" && exit 1"
+  }
+}
